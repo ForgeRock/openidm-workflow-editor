@@ -1,0 +1,81 @@
+/**
+ * Copyright 2020 ForgeRock AS. All Rights Reserved
+ *
+ * Use of this code requires a commercial software license with ForgeRock AS.
+ * or with one of its affiliates. All use shall be exclusively subject
+ * to such license between the licensee and ForgeRock AS.
+ */
+
+// Application wide variables can be overridden here
+// Forgerock based styles start with fr
+$white: white;
+$gray-100: #f6f8fa;
+$gray-200: #e7eef4;
+$gray-300: #d3d8e0;
+$gray-400: #c0c9d5;
+$gray-500: #77869e;
+$gray-600: #5e6d82;
+$gray-700: #455469;
+$gray-800: #324054;
+$gray-900: #23282e;
+$black: black;
+
+$blue: #109cf1;
+$indigo: #6610f2;
+$purple: #6f42c1;
+$pink: #e83e8c;
+$red: #f7685b;
+$orange: #fd7e14;
+$yellow: #ffb946;
+$green: #2ed47a;
+$teal: #20c997;
+$cyan: #17a2b8;
+$light-blue: #e4f4fd;
+$hover-blue: #0a6eab;
+
+$primary: $blue;
+$secondary: $gray-500;
+$success: $green;
+$info: $blue;
+$warning: $yellow;
+$danger: $red;
+$light: $gray-100;
+$dark: $gray-800;
+
+//Base
+$theme-colors: (
+  'primary': $primary,
+  'secondary': $secondary,
+  'success': $success,
+  'info': $info,
+  'warning': $warning,
+  'danger': $danger,
+  'light': $light,
+  'dark': $dark,
+);
+
+// Spacing
+$spacer: 1rem;
+$spacers: ();
+$spacers: map-merge(
+  (
+    0: 0,
+    1: (
+      $spacer * 0.25,
+    ),
+    2: (
+      $spacer * 0.5,
+    ),
+    3: $spacer,
+    4: (
+      $spacer * 1.5,
+    ),
+    5: (
+      $spacer * 3,
+    ),
+  ),
+  $spacers
+);
+
+$fr-typeface: 'Roboto', sans-serif;
+$fr-toolbar-hover: #dde5ec;

@@ -1,0 +1,24 @@
+{
+  "editor": {
+    "tooltips": {
+      "newBpmn": "New BPMN",
+      "openBpmn": "Open BPMN",
+      "saveImage": "Save Image",
+      "saveBpmn": "Save BPMN",
+      "zoomIn": "Zoom In",
+      "zoomOut": "Zoom out",
+      "zoomReset": "Reset Zoom",
+      "systemActions": "IDM System Actions"
+    },
+    "dropdowns": {
+      "importIdm": "Import from IDM",
+      "saveBpmnIdm": "Save BPMN to IDM",
+      "manageScriptsIdm": "Manage Scripts to IDM"
+    },
+    "templates": {
+      "basicProvision": "Basic Provision",
+      "basicStarter": "Basic Starter",
+      "blank": "Blank"
+    }
+  }
+}
