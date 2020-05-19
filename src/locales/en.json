@@ -2,23 +2,47 @@
   "editor": {
     "tooltips": {
       "newBpmn": "New BPMN",
-      "openBpmn": "Open BPMN",
-      "saveImage": "Save Image",
-      "saveBpmn": "Save BPMN",
+      "openBpmn": "Import Local BPMN",
+      "saveImage": "Save Local Image",
       "zoomIn": "Zoom In",
       "zoomOut": "Zoom out",
       "zoomReset": "Reset Zoom",
       "systemActions": "IDM System Actions"
     },
     "dropdowns": {
-      "importIdm": "Import from IDM",
-      "saveBpmnIdm": "Save BPMN to IDM",
-      "manageScriptsIdm": "Manage Scripts to IDM"
+      "openRemote": "Open",
+      "saveBpmnRemote": "Save",
+      "deleteBpmnRemote": "Delete",
+      "deployBpmnRemote": "Deploy",
+      "manageScriptsRemote": "Manage Resources"
     },
     "templates": {
       "basicProvision": "Basic Provision",
       "basicStarter": "Basic Starter",
-      "blank": "Blank"
+      "blank": "Blank",
+      "deleteModalTitle": "Delete",
+      "deployModalTitle": "Deploy",
+      "editModalTitle": "Edit XML",
+      "newModalTitle": "New",
+      "openRemoteModalTitle": "Open",
+      "saveRemoteModalTitle": "Save",
+      "resourceManagerTitle": "Resource Files",
+      "noResourcesDefined": "No resource files defined",
+      "name": "Name",
+      "noScriptsToUpload": "No resources to upload",
+      "noBpmn": "No Available BPMN",
+      "resourceName": "Resource Name"
+    },
+    "notifications": {
+      "workflowSaved": "Workflow successfully saved",
+      "workflowFailed": "Failed to save Workflow",
+      "workflowErrorTitle": "Workflow Error",
+      "workflowMessageTitle": "Workflow Message",
+      "workflowEndpointAccess": "Unable to access IDM Workflow endpoint",
+      "workflowSuccessDeployed": "Successfully deployed IDM Workflow",
+      "workflowFailedDeployed": "Successfully deployed IDM Workflow",
+      "workflowNoDiagram": "No BPMNDiagram detected, appending empty BPMNDiagram",
+      "workflowDeleted": "Successfully deleted workflow"
     }
   }
 }

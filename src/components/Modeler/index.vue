@@ -1,8 +1,3 @@
-<!-- Copyright 2020 ForgeRock AS. All Rights Reserved
-
-Use of this code requires a commercial software license with ForgeRock AS.
-or with one of its affiliates. All use shall be exclusively subject
-to such license between the licensee and ForgeRock AS. -->
 <template>
   <div class="w-100 flex-fill d-flex">
     <div
@@ -12,12 +7,13 @@ to such license between the licensee and ForgeRock AS. -->
 </template>
 
 <script>
+import { debounce } from 'lodash';
 import BpmnModeler from 'bpmn-js/dist/bpmn-modeler.production.min';
 
 export default {
   name: 'Modeler',
   props: {
-    bpmnTemplate: {
+    bpmn: {
       type: String,
       default: '',
     },
@@ -29,6 +25,7 @@ export default {
   data() {
     return {
       bpmnViewer: null,
+      skipReload: false,
     };
   },
   mounted() {
@@ -45,7 +42,7 @@ export default {
       },
     });
 
-    this.bpmnViewer.importXML(this.bpmnTemplate, (err) => {
+    this.bpmnViewer.importXML(this.bpmn, (err) => {
       if (!err) {
         this.bpmnViewer.get('canvas').zoom('fit-viewport', true);
       } else {
@@ -60,26 +57,65 @@ export default {
     this.bpmnViewer.on('canvas.viewbox.changed', (event) => {
       this.$emit('canvasZoom', event.viewbox.scale);
     });
+
+    this.bpmnViewer.on('commandStack.changed', () => {
+      this.modelerChangeEvent();
+    });
   },
   watch: {
-    bpmnTemplate() {
-      this.bpmnViewer.importXML(this.bpmnTemplate, (err) => {
-        if (!err) {
-          this.bpmnViewer.get('canvas').zoom('fit-viewport', true);
-        } else {
-          this.$bvToast.toast('Failed to load BPMN', {
-            title: 'BPMN Editor Message',
-            variant: 'danger',
-            solid: true,
-          });
-        }
-      });
+    bpmn() {
+      if (!this.skipNextLoad) {
+        this.bpmnViewer.importXML(this.bpmn, (err) => {
+          if (!err) {
+            this.bpmnViewer.get('canvas').zoom('fit-viewport', true);
+          } else if (err.message === 'no diagram to display') {
+            // In the case where the BPMN file does not contain a diagram element we will append an empty
+            // XML DOM element to allow for modeler usage.
+            // Parse string -> XML -> string
+            const emptyDiagram = '<bpmndi:BPMNDiagram xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" id="BPMNDiagram_1">'
+              + '<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">'
+              + '</bpmndi:BPMNPlane>'
+              + '</bpmndi:BPMNDiagram>';
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(this.bpmn, 'text/xml');
+            let emptyXml = parser.parseFromString(emptyDiagram, 'text/xml');
+            emptyXml = xml.importNode(emptyXml.getElementsByTagName('bpmndi:BPMNDiagram')[0], true);
+            const serializer = new XMLSerializer();
+            xml.getElementsByTagName('definitions')[0].append(emptyXml);
+
+            // Return back to string
+            this.$emit('modelerChange', serializer.serializeToString(xml));
+
+            this.$bvToast.toast(this.$t('editor.notifications.workflowNoDiagram'), {
+              title: this.$t('editor.notifications.workflowMessageTitle'),
+              toaster: 'b-toaster-top-center',
+              variant: 'info',
+              solid: true,
+            });
+          } else {
+            this.$bvToast.toast(err.message, {
+              title: this.$t('editor.notifications.workflowErrorTitle'),
+              toaster: 'b-toaster-top-center',
+              variant: 'danger',
+              solid: true,
+            });
+          }
+        });
+      } else {
+        this.skipNextLoad = false;
+      }
     },
     zoomLevel(zoom) {
       this.bpmnViewer.get('canvas').zoom(zoom);
     },
   },
   methods: {
+    modelerChangeEvent: debounce(function () {
+      this.saveXML().then((xml) => {
+        this.skipNextLoad = true;
+        this.$emit('modelerChange', xml);
+      });
+    }, 500),
     saveSVG() {
       const savePromise = new Promise((resolve, reject) => {
         this.bpmnViewer.saveSVG({ format: true }, (err, svg) => {

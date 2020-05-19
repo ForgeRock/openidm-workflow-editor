@@ -13,6 +13,11 @@ const routes = [
     name: 'Editor',
     component: () => import(/* webpackChunkName: "editor" */ '../views/Editor'),
   },
+  // For now will just force any none known route to reroute to the primary editor page
+  {
+    path: '*',
+    redirect: { name: 'Editor' },
+  },
 ];
 
 const router = new VueRouter({

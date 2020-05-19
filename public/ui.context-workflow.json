@@ -1,0 +1,5 @@
+{
+    "enabled": true,
+    "urlContextRoot": "/workflow",
+    "defaultDir": "&{idm.install.dir}/ui/workflow"
+}

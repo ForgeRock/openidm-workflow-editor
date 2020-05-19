@@ -1,11 +1,3 @@
-/**
- * Copyright 2020 ForgeRock AS. All Rights Reserved
- *
- * Use of this code requires a commercial software license with ForgeRock AS.
- * or with one of its affiliates. All use shall be exclusively subject
- * to such license between the licensee and ForgeRock AS.
- */
-
 @import '~bootstrap/scss/bootstrap';
 @import '~bootstrap-vue/dist/bootstrap-vue.css';
 
@@ -23,4 +15,27 @@ body {
     .dropdown-toggle::after {
         margin-left: 1em;
     }
+}
+
+.prism-editor-wrapper.workflow-code-editor {
+  height: 600px;
+}
+
+.prism-editor-wrapper.workflow-large-code-editor {
+  height: 600px;
+}
+
+.modal-xxl {
+  max-width: 1200px;
+}
+
+.radio-card-no-items {
+  text-align: center;
+  font-size: 18px;
+
+  .radio-card-icon {
+    position: relative;
+    top: 7px;
+    font-size: 32px;
+  }
 }

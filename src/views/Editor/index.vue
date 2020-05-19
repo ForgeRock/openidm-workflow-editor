@@ -1,58 +1,176 @@
-<!-- Copyright 2020 ForgeRock AS. All Rights Reserved
-
-Use of this code requires a commercial software license with ForgeRock AS.
-or with one of its affiliates. All use shall be exclusively subject
-to such license between the licensee and ForgeRock AS. -->
 <template>
   <div class="flex-column d-flex h-100 w-100">
-    <BNavbar class="action-bar py-0" size="sm" type="light" variant="light">
+    <BNavbar
+      class="display-bar"
+      size="sm"
+      type="light"
+      variant="light">
+      <BFormInput
+        class="bpmn-name-input"
+        v-model="bpmnName" />
+    </BNavbar>
+    <BNavbar
+      class="action-bar py-0"
+      size="sm"
+      type="light"
+      variant="light">
       <BNavbarNav :small="true">
-        <BDropdown v-b-tooltip.hover :title="$t('editor.tooltips.systemActions')" :squared="true" variant="light">
+        <BDropdown
+          v-b-tooltip.hover
+          :disabled="!idmSessionCheck"
+          :title="$t('editor.tooltips.systemActions')"
+          :squared="true"
+          variant="light">
           <template v-slot:button-content>
-            <BImg style="margin-bottom: 3px;" height="20" :src="require('@/assets/fr-logo-mark.svg')"/>
+            <BImg
+              style="margin-bottom: 3px;"
+              height="20"
+              :src="require('@/assets/fr-logo-mark.svg')" />
           </template>
-          <BDropdownItem href="#">{{$t('editor.dropdowns.importIdm')}}</BDropdownItem>
-          <BDropdownItem href="#">{{$t('editor.dropdowns.saveBpmnIdm')}}</BDropdownItem>
-          <BDropdownItem href="#">{{$t('editor.dropdowns.manageScriptsIdm')}}</BDropdownItem>
+          <BDropdownItem v-b-modal="'openRemoteBpmn'">
+            {{ $t('editor.dropdowns.openRemote') }}
+          </BDropdownItem>
+          <BDropdownItem
+            v-b-modal="'saveRemoteBpmn'"
+            href="#">
+            {{ $t('editor.dropdowns.saveBpmnRemote') }}
+          </BDropdownItem>
+          <BDropdownItem
+            v-b-modal="'scriptManager'"
+            href="#">
+            {{ $t('editor.dropdowns.manageScriptsRemote') }}
+          </BDropdownItem>
+          <BDropdownDivider />
+          <BDropdownItem
+            v-b-modal="'deployRemoteBpmn'"
+            href="#">
+            {{ $t('editor.dropdowns.deployBpmnRemote') }}
+          </BDropdownItem>
+          <BDropdownItem
+            v-b-modal="'deleteRemoteBpmn'"
+            href="#">
+            {{ $t('editor.dropdowns.deleteBpmnRemote') }}
+          </BDropdownItem>
         </BDropdown>
         <BButtonGroup>
-          <BButton v-b-tooltip.hover :title="$t('editor.tooltips.newBpmn')" v-b-modal="'newBpmnModel'" size="sm" :squared="true" variant="light">
+          <BButton
+            v-b-tooltip.hover
+            :title="$t('editor.tooltips.newBpmn')"
+            v-b-modal="'newBpmnModel'"
+            size="sm"
+            :squared="true"
+            variant="light">
             <i class="material-icons-outlined mt-2">note_add</i>
           </BButton>
-          <BButton v-b-tooltip.hover :title="$t('editor.tooltips.openBpmn')" @click="openBPMN" size="sm" :squared="true" variant="light">
+          <BButton
+            v-b-tooltip.hover
+            :title="$t('editor.tooltips.openBpmn')"
+            @click="loadLocalBpmn"
+            size="sm"
+            :squared="true"
+            variant="light">
             <i class="material-icons-outlined mt-2">folder</i>
-                <BFormFile
-                  ref="fileUploader"
-                  v-model="uploadedFile"
-                  class="d-none"
-                  plain
-                ></BFormFile>
+            <BFormFile
+              ref="fileUploader"
+              v-model="uploadedFile"
+              class="d-none"
+              plain
+            />
           </BButton>
-          <BButton v-b-tooltip.hover :title="$t('editor.tooltips.saveImage')" @click="saveSVG" size="sm" :squared="true" variant="light">
+          <BButton
+            v-b-tooltip.hover
+            :title="$t('editor.tooltips.saveImage')"
+            @click="saveSVG"
+            size="sm"
+            :squared="true"
+            variant="light">
             <i class="material-icons-outlined mt-2">image</i>
           </BButton>
-          <BButton v-b-tooltip.hover :title="$t('editor.tooltips.saveBpmn')" @click="saveBPMN" size="sm" :squared="true" variant="light">
-            <i class="material-icons-outlined mt-2">save_alt</i>
+          <BButton
+            v-b-tooltip.hover
+            title="Edit BPMN XML"
+            v-b-modal="'editBpmnModel'"
+            size="sm"
+            :squared="true"
+            variant="light">
+            <i class="material-icons-outlined mt-2">code</i>
           </BButton>
         </BButtonGroup>
         <BButtonGroup>
-          <BButton v-b-tooltip.hover :title="$t('editor.tooltips.zoomIn')" :disabled="zoomLevel === 4" @click="zoomIn" size="sm" :squared="true" variant="light">
+          <BButton
+            v-b-tooltip.hover
+            :title="$t('editor.tooltips.zoomIn')"
+            :disabled="zoomLevel === 4"
+            @click="zoomIn"
+            size="sm"
+            :squared="true"
+            variant="light">
             <i class="material-icons-outlined mt-2">zoom_in</i>
           </BButton>
-          <BButton v-b-tooltip.hover :title="$t('editor.tooltips.zoomReset')" :disabled="zoomLevel === 1"  @click="zoomReset" size="sm" :squared="true" variant="light">
+          <BButton
+            v-b-tooltip.hover
+            :title="$t('editor.tooltips.zoomReset')"
+            :disabled="zoomLevel === 1"
+            @click="zoomReset"
+            size="sm"
+            :squared="true"
+            variant="light">
             <i class="material-icons-outlined mt-2">center_focus_weak</i>
           </BButton>
-          <BButton v-b-tooltip.hover :title="$t('editor.tooltips.zoomOut')" :disabled="zoomLevel === 0.2" @click="zoomOut" size="sm" :squared="true" variant="light">
+          <BButton
+            v-b-tooltip.hover
+            :title="$t('editor.tooltips.zoomOut')"
+            :disabled="zoomLevel === 0.2"
+            @click="zoomOut"
+            size="sm"
+            :squared="true"
+            variant="light">
             <i class="material-icons-outlined mt-2">zoom_out</i>
           </BButton>
         </BButtonGroup>
       </BNavbarNav>
     </BNavbar>
-    <Modeler ref="bpmnEditor" :zoomLevel="zoomLevel" @canvasZoom="zoomHandler" :bpmnTemplate="xmlTemplate"/>
-    <newBPMNModal
-    templateDefault="newTemplate"
-    @templateSelect="loadTemplate"
-    :availableTemplates="availableTemplates"></newBPMNModal>
+    <Modeler
+      ref="bpmnEditor"
+      :zoom-level="zoomLevel"
+      @canvasZoom="zoomHandler"
+      @modelerChange="updateBpmnByModeler"
+      :bpmn="xmlTemplate" />
+    <saveRemoteBpmnModal
+      @saveRemoteBpmn="saveRemoteBpmn"
+      :remote-details="remoteDetails"
+      :bpmn="xmlTemplate"
+      :name="bpmnName"
+      :scripts="scripts" />
+    <deleteRemoteBpmnModal />
+    <openRemoteBpmnModal @loadRemoteBpmn="loadRemoteBpmn" />
+    <deployRemoteBpmnModal />
+    <resourceManagerModal
+      @updateScripts="updateScripts"
+      :scripts="scripts" />
+    <newBpmnModal
+      template-default="newTemplate"
+      @selectedBpmn="updateBpmnByTemplate"
+      :available-templates="availableTemplates" />
+    <editBpmnModal
+      :template="xmlTemplate"
+      @updateBpmn="updateBpmnByCode" />
+    <BOverlay
+      :show="loading"
+      no-wrap
+      rounded="lg"
+      opacity="0.6">
+      <template v-slot:overlay>
+        <div class="d-flex align-items-center h-100 w-100">
+          <BSpinner
+            class="ml-4 mb-2"
+            variant="primary" />
+        </div>
+        <h5 class="text-muted">
+          Loading...
+        </h5>
+      </template>
+    </BOverlay>
   </div>
 </template>
 
@@ -62,13 +180,23 @@ import {
   BButtonGroup,
   BDropdown,
   BDropdownItem,
+  BDropdownDivider,
   BFormFile,
+  BFormInput,
   BNavbar,
   BNavbarNav,
   BImg,
+  BOverlay,
+  BSpinner,
 } from 'bootstrap-vue';
 import Modeler from '@/components/Modeler/';
-import newBPMNModal from '../EditorModals/newBpmn';
+import newBpmnModal from '../EditorModals/newBpmn';
+import openRemoteBpmnModal from '../EditorModals/openRemoteBpmn';
+import saveRemoteBpmnModal from '../EditorModals/saveRemoteBpmn';
+import deployRemoteBpmnModal from '../EditorModals/deployRemoteBpmn';
+import deleteRemoteBpmnModal from '../EditorModals/deleteRemoteBpmn';
+import editBpmnModal from '../EditorModals/editBpmn';
+import resourceManagerModal from '../EditorModals/resourceManager';
 import newTemplate from './examples/newbpmn.bpmn';
 import basicProvisionTemplate from './examples/basicProvision.bpmn';
 import basicTemplate from './examples/basic.bpmn';
@@ -83,18 +211,32 @@ export default {
     BImg,
     BDropdown,
     BDropdownItem,
+    BDropdownDivider,
     BFormFile,
+    BFormInput,
     Modeler,
-    newBPMNModal,
+    newBpmnModal,
+    saveRemoteBpmnModal,
+    openRemoteBpmnModal,
+    deleteRemoteBpmnModal,
+    deployRemoteBpmnModal,
+    editBpmnModal,
+    resourceManagerModal,
+    BOverlay,
+    BSpinner,
   },
   data() {
     return {
       xmlTemplate: newTemplate,
       svgName: 'idmWorkflowImage.svg',
       svgFile: '',
-      bpmnFile: '',
-      bpmnName: 'idmWorkflowBPMN.bpmn',
+      bpmnName: 'New Workflow',
+      scripts: {},
+      isRemote: false,
+      loading: false,
       uploadedFile: null,
+      idmSessionCheck: true,
+      remoteDetails: null,
       zoomLevel: 1,
       availableTemplates: {
         newTemplate: {
@@ -115,10 +257,17 @@ export default {
       },
     };
   },
+  created() {
+    this.idmInstance = this.getRequestService();
+
+    this.idmInstance.post('/authentication?_action=login').then(() => {
+      this.idmSessionCheck = true;
+    })
+      .catch(() => {
+        this.idmSessionCheck = false;
+      });
+  },
   methods: {
-    updateEditorByTemplate(selectedValue) {
-      this.xmlTemplate = this.availableTemplates[selectedValue].value;
-    },
     zoomHandler(zoomLevel) {
       if (zoomLevel !== this.zoomLevel) {
         this.zoomLevel = zoomLevel;
@@ -144,22 +293,7 @@ export default {
     },
     zoomReset() {
       this.zoomLevel = 1;
-    },
-    saveSVG() {
-      this.$refs.bpmnEditor.saveSVG().then((svg) => {
-        this.generateFile(svg, 'IDMImageSave.svg');
-      });
-    },
-    saveBPMN() {
-      this.$refs.bpmnEditor.saveXML().then((xml) => {
-        this.generateFile(xml, 'IDMBpmnSave.bpmn');
-      });
-    },
-    openBPMN() {
-      this.$refs.fileUploader.$el.click();
-    },
-    loadTemplate(template) {
-      this.xmlTemplate = template.value;
+      this.$root.$emit('bv::hide::tooltip');
     },
     generateFile(data, name) {
       if (navigator.msSaveBlob) {
@@ -176,6 +310,58 @@ export default {
         a.dispatchEvent(e);
       }
     },
+    saveSVG() {
+      this.$refs.bpmnEditor.saveSVG().then((svg) => {
+        this.generateFile(svg, 'IDMImageSave.svg');
+      });
+    },
+    // Remote events
+    updateScripts(scripts) {
+      this.scripts = scripts;
+    },
+    // Load template
+    updateBpmnByTemplate(template) {
+      this.xmlTemplate = template.value;
+      this.bpmnName = 'New Workflow';
+      this.scripts = {};
+      this.remoteDetails = null;
+    },
+    // Update BPMN manually
+    updateBpmnByCode(template) {
+      this.xmlTemplate = template;
+    },
+    // Update BPMN from modeler changes
+    updateBpmnByModeler(xml) {
+      this.xmlTemplate = xml;
+    },
+    // Save remote BPMN workflow
+    saveRemoteBpmn(workflowDetails) {
+      this.remoteDetails = workflowDetails;
+    },
+    // Open local BPMN
+    loadLocalBpmn() {
+      this.$refs.fileUploader.$el.click();
+    },
+    // Load remote BPMN
+    loadRemoteBpmn(bpmn) {
+      this.loading = true;
+      this.idmInstance.get(`/workflow/model/${bpmn._id}`).then((loadedBpmn) => {
+        this.xmlTemplate = loadedBpmn.data.bpmnXML;
+        this.bpmnName = loadedBpmn.data.name;
+        this.scripts = loadedBpmn.data.resourceMap;
+        this.loading = false;
+        this.remoteDetails = loadedBpmn.data;
+      })
+        .catch(() => {
+          this.loading = false;
+          this.$bvToast.toast('Failed to load remote BPMN', {
+            title: 'Workflow Error',
+            toaster: 'b-toaster-top-center',
+            variant: 'danger',
+            solid: true,
+          });
+        });
+    },
   },
   watch: {
     uploadedFile(file) {
@@ -183,6 +369,9 @@ export default {
 
       reader.onload = () => {
         this.xmlTemplate = reader.result;
+        this.bpmnName = file.name;
+        this.scripts = {};
+        this.remoteDetails = null;
       };
 
       reader.readAsText(file);
@@ -191,6 +380,15 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+  .bpmn-name-input {
+    background-color: transparent;
+    width: 200px;
+    border-color: transparent;
+  }
+  .display-bar {
+    height: 40px;
+  }
+
   .action-bar {
     border-top:1px solid $gray-200;
     border-bottom:1px solid $gray-200;

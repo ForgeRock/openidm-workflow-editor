@@ -7,6 +7,20 @@
  */
 module.exports = {
   runtimeCompiler: true,
+  publicPath: './',
+  configureWebpack: {
+    devtool: 'eval-source-map',
+  },
+  devServer: {
+    host: 'localhost',
+    proxy: {
+      '/openidm': {
+        target: `${process.env.VUE_APP_IDM_HOST}/${process.env.VUE_APP_IDM_CONTEXT}`,
+        pathRewrite: { '^/openidm': '' },
+        changeOrigin: true,
+      },
+    },
+  },
   css: {
     loaderOptions: {
       sass: {

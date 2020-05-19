@@ -1,8 +1,3 @@
-<!-- Copyright 2020 ForgeRock AS. All Rights Reserved
-
-Use of this code requires a commercial software license with ForgeRock AS.
-or with one of its affiliates. All use shall be exclusively subject
-to such license between the licensee and ForgeRock AS. -->
 <template>
   <div>
     <label class="h-100 w-100 mb-0">
@@ -99,6 +94,11 @@ export default {
   -webkit-box-shadow: none;
   box-shadow: none;
   border: 1px solid $card-border-color;
+
+  .radio-card-icon {
+    font-size: 32px;
+    color: $secondary;
+  }
 }
 
 .card-input:hover {
