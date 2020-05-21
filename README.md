@@ -23,7 +23,7 @@
 <a name="project-notes"></a>
 ## Project Notes
 
-- Currently, this project does not provide any means of authentication. To use authentication, you can build and include the project in your Forgerock platform or configure the development sever to point to your Platform / IDM instance to share the same authentication session.
+- Currently, this project does not provide any means of authentication. To use authentication, you can build and include the project in your Forgerock platform or configure the development server to point to your Platform / IDM instance to share the same authentication session.
 - Although the editor may work without Forgerock Platform, its functions will be limited.
 
 <a name="quick-start"></a>
