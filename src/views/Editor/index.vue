@@ -311,8 +311,8 @@ export default {
       }
     },
     saveSVG() {
-      this.$refs.bpmnEditor.saveSVG().then((svg) => {
-        this.generateFile(svg, 'IDMImageSave.svg');
+      this.$refs.bpmnEditor.saveSVG().then((saveResult) => {
+        this.generateFile(saveResult.svg, 'IDMImageSave.svg');
       });
     },
     // Remote events
@@ -366,15 +366,16 @@ export default {
   watch: {
     uploadedFile(file) {
       const reader = new FileReader();
+      // Check to ensure a file is selected
+      if (file !== null) {
+        reader.onload = () => {
+          this.xmlTemplate = reader.result;
+          this.bpmnName = file.name;
+          this.scripts = {};
+        };
 
-      reader.onload = () => {
-        this.xmlTemplate = reader.result;
-        this.bpmnName = file.name;
-        this.scripts = {};
-        this.remoteDetails = null;
-      };
-
-      reader.readAsText(file);
+        reader.readAsText(file);
+      }
     },
   },
 };

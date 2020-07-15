@@ -42,8 +42,8 @@ export default {
       },
     });
 
-    this.bpmnViewer.importXML(this.bpmn, (err) => {
-      if (!err) {
+    this.bpmnViewer.importXML(this.bpmn).then((err) => {
+      if (err.warnings.length === 0) {
         this.bpmnViewer.get('canvas').zoom('fit-viewport', true);
       } else {
         this.$bvToast.toast('Failed to load BPMN', {
@@ -65,20 +65,25 @@ export default {
   watch: {
     bpmn() {
       if (!this.skipNextLoad) {
-        this.bpmnViewer.importXML(this.bpmn, (err) => {
-          if (!err) {
-            this.bpmnViewer.get('canvas').zoom('fit-viewport', true);
-          } else if (err.message === 'no diagram to display') {
+        this.bpmnViewer.importXML(this.bpmn).then(() => {
+          this.bpmnViewer.get('canvas').zoom('fit-viewport', true);
+        },
+        (err) => {
+          if (err.message === 'no diagram to display') {
             // In the case where the BPMN file does not contain a diagram element we will append an empty
             // XML DOM element to allow for modeler usage.
             // Parse string -> XML -> string
-            const emptyDiagram = '<bpmndi:BPMNDiagram xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" id="BPMNDiagram_1">'
-              + '<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">'
-              + '</bpmndi:BPMNPlane>'
-              + '</bpmndi:BPMNDiagram>';
             const parser = new DOMParser();
             const xml = parser.parseFromString(this.bpmn, 'text/xml');
+
+            const diagramId = xml.getElementsByTagName('process')[0].getAttribute('id') || 'Process_1';
+            const emptyDiagram = '<bpmndi:BPMNDiagram xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" id="BPMNDiagram_1">'
+                + `<bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="${diagramId}">`
+                + '</bpmndi:BPMNPlane>'
+                + '</bpmndi:BPMNDiagram>';
+
             let emptyXml = parser.parseFromString(emptyDiagram, 'text/xml');
+
             emptyXml = xml.importNode(emptyXml.getElementsByTagName('bpmndi:BPMNDiagram')[0], true);
             const serializer = new XMLSerializer();
             xml.getElementsByTagName('definitions')[0].append(emptyXml);
@@ -100,6 +105,12 @@ export default {
               solid: true,
             });
           }
+        }, () => {
+          this.$bvToast.toast('Failed to load BPMN', {
+            title: 'BPMN Editor Message',
+            variant: 'danger',
+            solid: true,
+          });
         });
       } else {
         this.skipNextLoad = false;
@@ -111,36 +122,16 @@ export default {
   },
   methods: {
     modelerChangeEvent: debounce(function () {
-      this.saveXML().then((xml) => {
+      this.saveXML().then((saveResult) => {
         this.skipNextLoad = true;
-        this.$emit('modelerChange', xml);
+        this.$emit('modelerChange', saveResult.xml);
       });
     }, 500),
     saveSVG() {
-      const savePromise = new Promise((resolve, reject) => {
-        this.bpmnViewer.saveSVG({ format: true }, (err, svg) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve((svg));
-          }
-        });
-      });
-
-      return savePromise;
+      return this.bpmnViewer.saveSVG({ format: true });
     },
     saveXML() {
-      const savePromise = new Promise((resolve, reject) => {
-        this.bpmnViewer.saveXML({ format: true }, (err, xml) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve((xml));
-          }
-        });
-      });
-
-      return savePromise;
+      return this.bpmnViewer.saveXML({ format: true });
     },
   },
 };
