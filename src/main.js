@@ -6,12 +6,14 @@
  * of the MIT license. See the LICENSE file for details.
  */
 
+import AppAuthHelper from 'appauthhelper/appAuthHelperCompat';
+import SessionCheck from 'oidcsessioncheck';
 import Vue from 'vue';
 import { ToastPlugin, ModalPlugin, TooltipPlugin } from 'bootstrap-vue';
 import axios from 'axios';
+import i18n from './i18n';
 import App from './App';
 import router from './router';
-import i18n from './i18n';
 
 
 Vue.config.productionTip = false;
@@ -57,9 +59,58 @@ Vue.mixin({
   },
 });
 
+if (process.env.VUE_APP_ADMIN_CLIENT_ID && process.env.VUE_APP_AM_URL) {
+  const AM_URL = process.env.VUE_APP_AM_URL;
+  const commonSettings = {
+    clientId: process.env.VUE_APP_ADMIN_CLIENT_ID,
+    authorizationEndpoint: `${AM_URL}/oauth2/authorize`,
+  };
 
-new Vue({
-  router,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+  AppAuthHelper.init({
+    clientId: commonSettings.clientId,
+    authorizationEndpoint: commonSettings.authorizationEndpoint,
+    tokenEndpoint: `${AM_URL}/oauth2/access_token`,
+    revocationEndpoint: `${AM_URL}/oauth2/token/revoke`,
+    endSessionEndpoint: `${AM_URL}/oauth2/connect/endSession`,
+    identityProxyPreference: 'XHR',
+    resourceServers: {
+      [process.env.VUE_APP_IDM_REST_URL]: 'fr:idm:*',
+    },
+    tokensAvailableHandler: (claims) => {
+      const sessionCheck = new SessionCheck({
+        clientId: commonSettings.clientId,
+        opUrl: commonSettings.authorizationEndpoint,
+        subject: claims.sub,
+        invalidSessionHandler() {
+          AppAuthHelper.logout().then(() => window.location.reload());
+        },
+        sessionClaimsHandler(newClaims) {
+          if (claims.auth_time !== newClaims.auth_time || claims.realm !== newClaims.realm) {
+            this.invalidSessionHandler();
+          }
+        },
+        cooldownPeriod: 5,
+      });
+      sessionCheck.triggerSessionCheck();
+
+      document.addEventListener('click', sessionCheck.triggerSessionCheck());
+      document.addEventListener('keypress', sessionCheck.triggerSessionCheck());
+
+
+      new Vue({
+        router,
+        i18n,
+        render: (h) => h(App),
+      }).$mount('#app');
+    },
+  }).then(
+    // In this application, we want tokens immediately, before any user interaction is attempted
+    () => AppAuthHelper.getTokens(),
+  );
+} else {
+  new Vue({
+    router,
+    i18n,
+    render: (h) => h(App),
+  }).$mount('#app');
+}
