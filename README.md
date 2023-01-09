@@ -47,7 +47,7 @@ Development server notes:
 
 1. [Download and install the latest node](https://nodejs.org/en/download/) or verify your node version `node -v`.
 1. Check that you have the latest npm `npm install npm@latest -g`.
-1. Clone or download the Workflow Editor project repo: `https://stash.forgerock.org/projects/OPENIDM/repos/openidm-workflow-editor/browse`.
+1. Clone or download the Workflow Editor project repo: `https://github.com/ForgeRock/openidm-workflow-editor`.
 1. Navigate to your `openidm-workflow-editor` directory and install dependencies `npm install`.
 1. Edit `vue.config.js`, and update `proxyTable:target` to point to your target IDM.
 1. Start up target IDM (default startup is `http://localhost:8080`).
@@ -74,7 +74,7 @@ npm run lint
 ### IDM Integration
 
 1. Check that you have the latest npm `npm install npm@latest -g`.
-1. Clone or download the Workflow Editor project repo: `https://stash.forgerock.org/projects/OPENIDM/repos/openidm-workflow-editor/browse`.
+1. Clone or download the Workflow Editor project repo: `https://github.com/ForgeRock/openidm-workflow-editor`.
 1. From the project repo, copy `/public/ui.context-workflow.json` to your IDM project's `/conf` directory. 
 1. In the `/path/to/openidm/ui` directory, create a `workflow` directory.
 1. From the root of your cloned/downloaded Workflow Editor repo, build the project `npm run build`.
